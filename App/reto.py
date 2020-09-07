@@ -61,13 +61,66 @@ def compareRecordIds (recordA, recordB):
         return 1
     return -1
 
-
+"""
+SOLUCIÓN GRUPO 8 SECCIÓN 4
+Jessica Robles, Mª Paula Gonzales y Martin Ubaque
+"""
+def less(element1, element2, criteria):
+    if float(element1[criteria]) < float(element2[criteria]):
+        return True
+    return False
+"""
+SOLUCIÓN GRUPO 8 SECCIÓN 4
+Jessica Robles, Mª Paula Gonzales y Martin Ubaque
+"""
+def greater (element1,element2, criteria):
+    if float(element1[criteria]) > float(element2[criteria]):
+        return True
+    return False
+"""
+SOLUCIÓN GRUPO 8 SECCIÓN 4
+Jessica Robles, Mª Paula Gonzales y Martin Ubaque
+"""
+def selectionSort (lst, lessfunction, criteria,size):    #Se utiliza selection sort para que se organicen solo las primeras posiciones del ranking, y así
+    pos1 = 1                                             #gastar menos timepo con los archivos large
+    while pos1 < size:
+        minimum = pos1              
+        pos2 = pos1 + 1
+        while (pos2 <= lt.size(lst)):
+            if (lessfunction (lt.getElement(lst, pos2),lt.getElement(lst, minimum),criteria)): 
+                minimum = pos2      # minimum se actualiza con la posición del nuevo elemento más pequeño
+            pos2 += 1
+        lt.exchange (lst, pos1, minimum)  # se intercambia el elemento más pequeño hasta ese punto con el elemento en pos1
+        pos1 += 1
+"""
+SOLUCIÓN GRUPO 8 SECCIÓN 4
+Jessica Robles, Mª Paula Gonzales y Martin Ubaque
+"""
+def orderElementsByCriteria(function, column, lst, elements):
+    """
+    Retorna una lista con cierta cantidad de elementos ordenados por el criterio
+    """
+    if column == "1":
+        column="vote_count"
+    elif column == "2":
+        column="vote_average"
+    else:
+        print("Valor no valido para criterio de busqueda")
+    lista=lt.newList("ARRAY_LIST")
+    if function=="1":
+        selectionSort(lst,greater,column, (int(elements)+1))
+    elif function=="2":
+        selectionSort(lst,less,column, (int(elements)+1))
+    for i in range(1,(int(elements)+1)):
+        lt.addLast(lista, lt.getElement(lst, i))
+    return lista
 
 def loadCSVFile (file, cmpfunction):
     lst=lt.newList("ARRAY_LIST", cmpfunction)
     dialect = csv.excel()
     dialect.delimiter=";"
     try:
+        print(cf.data_dir + file)
         with open(  cf.data_dir + file, encoding="utf-8") as csvfile:
             row = csv.DictReader(csvfile, dialect=dialect)
             for elemento in row: 
@@ -78,11 +131,14 @@ def loadCSVFile (file, cmpfunction):
 
 
 def loadMovies ():
-    lst = loadCSVFile("theMoviesdb/movies-small.csv",compareRecordIds) 
+    lst = loadCSVFile("themoviesdb/SmallMoviesDetailsCleaned.csv",compareRecordIds) 
     print("Datos cargados, " + str(lt.size(lst)) + " elementos cargados")
     return lst
 
-
+def loadCasting ():
+    lst = loadCSVFile("themoviesdb/MoviesCastingRaw-small.csv",compareRecordIds) 
+    print("Datos cargados, " + str(lt.size(lst)) + " elementos cargados")
+    return lst
 def main():
     """
     Método principal del programa, se encarga de manejar todos los metodos adicionales creados
@@ -92,7 +148,8 @@ def main():
     Return: None 
     """
 
-
+    lstmovies = lt.newList()   # se require usar lista definida
+    lstcasting = lt.newList()
     while True:
         printMenu() #imprimir el menu de opciones en consola
         inputs =input('Seleccione una opción para continuar\n') #leer opción ingresada
@@ -100,9 +157,24 @@ def main():
 
             if int(inputs[0])==1: #opcion 1
                 lstmovies = loadMovies()
-
+                lstcasting = loadCasting()
             elif int(inputs[0])==2: #opcion 2
-                pass
+                if lstmovies==None or lstmovies['size']==0: #obtener la longitud de la lista
+                    print("La lista details esta vacía")  
+                elif lstcasting==None or lstcasting['size']==0: #obtener la longitud de la lista
+                    print("La lista casting esta vacía")    
+                else: 
+                    criteria =input('Ingrese 1 si el criterio de busqueda es COUNT o ingrese 2 si es AVERAGE\n')
+                    crecimiento =input("Ingrese 1 si quiere la lista de las 10 mejores películas, o 2 si quiere la lista de las 10 peores películas.\n")
+                    tamaño = 10
+                    lista=orderElementsByCriteria(crecimiento,criteria,lstmovies,tamaño)
+                    print ("La lista solicitada es:")
+                    iterator = it.newIterator(lista)
+                    i=1
+                    while  it.hasNext(iterator):
+                        element = it.next(iterator)
+                        print(str(i)+"- "+element["original_title"])
+                        i += 1
 
             elif int(inputs[0])==3: #opcion 3
                 pass
